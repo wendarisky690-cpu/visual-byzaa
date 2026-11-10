@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox DJ Screen Visual & Luau Script Studio Pro</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Komplit -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Creepster&family=Monoton&family=Orbitron:wght@400;700;900&family=Permanent+Marker&family=Press+Start+2P&family=Rajdhani:wght@500;700&family=Russo+One&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif'],
+                        gothic: ['UnifrakturMaguntia', 'serif'],
+                        cinzel: ['Cinzel', 'serif'],
+                        marker: ['Permanent Marker', 'cursive'],
+                        pixel: ['"Press Start 2P"', 'monospace'],
+                        russo: ['Russo One', 'sans-serif'],
+                        monoton: ['Monoton', 'cursive'],
+                        creepster: ['Creepster', 'cursive']
+                    },
+                    colors: {
+                        cyber: {
+                            dark: '#080810',
+                            card: '#10101c',
+                            accent: '#ff0055',
+                            neon: '#00f0ff',
+                            purple: '#9d00ff',
+                            green: '#00ff66',
+                            gold: '#ffb700'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #05050a;
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #080810;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #222238;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f0ff;
+        }
+
+        .neon-border {
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.25), inset 0 0 15px rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            background: #1a1a2e;
+            border-radius: 5px;
+            height: 6px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #00f0ff;
+            cursor: pointer;
+            box-shadow: 0 0 8px #00f0ff;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(90deg, rgba(255,0,85,0.25) 0%, rgba(0,240,255,0.25) 100%);
+            border-bottom: 2px solid #00f0ff;
+            color: #ffffff;
+        }
+
+        .scanlines {
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            ), linear-gradient(
+                90deg,
+                rgba(255, 0, 0, 0.03),
+                rgba(0, 255, 0, 0.01),
+                rgba(0, 0, 255, 0.03)
+            );
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        canvas {
+            touch-action: none;
+            will-change: transform;
+            image-rendering: -webkit-optimize-contrast;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyber-neon selection:text-black">
+
+    <!-- Header / Navbar -->
+    <header class="border-b border-gray-800 bg-cyber-dark/90 backdrop-blur-md sticky top-0 z-50 px-4 lg:px-8 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-cyber-accent via-cyber-purple to-cyber-neon flex items-center justify-center text-black font-black text-xl shadow-[0_0_15px_rgba(0,240,255,0.5)]">
+                <i class="fa-solid fa-compact-disc animate-spin" style="animation-duration: 4s;"></i>
+            </div>
+            <div>
+                <h1 class="font-orbitron text-lg lg:text-xl font-bold tracking-wider text-white flex items-center gap-2">
+                    ROBLOX <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyber-accent to-cyber-neon">VISUAL STUDIO PRO</span>
+                </h1>
+                <p class="text-xs text-gray-400 font-medium">Video Background & Custom Text 3D Generator</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <a href="#roblox-guide" class="text-xs px-3 py-1.5 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-300 transition-all flex items-center gap-1.5 border border-gray-700">
+                <i class="fa-solid fa-book text-cyber-neon"></i>
+                <span class="hidden sm:inline">Panduan Studio Lite</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-[1600px] w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT PANEL: Controls (5 Cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-4">
+            
+            <!-- Navigation Tabs -->
+            <div class="flex border-b border-gray-800 bg-cyber-dark rounded-t-xl overflow-hidden p-1 gap-1">
+                <button onclick="switchTab('design')" id="tab-design" class="tab-btn active flex-1 py-2 px-3 text-xs sm:text-sm font-orbitron font-bold rounded-lg text-gray-400 hover:text-white transition-all flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-sliders text-cyber-neon"></i> Visual & Text
+                </button>
+                <button onclick="switchTab('video')" id="tab-video" class="tab-btn flex-1 py-2 px-3 text-xs sm:text-sm font-orbitron font-bold rounded-lg text-gray-400 hover:text-white transition-all flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-video text-cyber-green"></i> Video Background
+                </button>
+                <button onclick="switchTab('script')" id="tab-script" class="tab-btn flex-1 py-2 px-3 text-xs sm:text-sm font-orbitron font-bold rounded-lg text-gray-400 hover:text-white transition-all flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-code text-cyber-accent"></i> Script Luau
+                </button>
+            </div>
+
+            <!-- TAB 1: DESIGN & TEXT STYLING -->
+            <div id="panel-design" class="flex flex-col gap-4">
+                
+                <!-- Text Settings -->
+                <div class="bg-cyber-card p-4 rounded-xl border border-gray-800/80 shadow-lg flex flex-col gap-3">
+                    <h3 class="text-xs font-orbitron font-bold text-cyber-neon uppercase tracking-widest flex items-center gap-1.5">
+                        <i class="fa-solid fa-font"></i> Teks & Ukuran Logo
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Teks Utama Logo</label>
+                            <input type="text" id="inputMainText" value="Boy Studio" oninput="updateVisuals()" class="w-full bg-gray-900 border border-gray-700 focus:border-cyber-neon rounded-lg px-3 py-2 text-sm font-orbitron font-bold text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Sub-Teks / Tagline</label>
+                            <input type="text" id="inputSubText" value="OFFICIAL RAVE CLUB" oninput="updateVisuals()" class="w-full bg-gray-900 border border-gray-700 focus:border-cyber-neon rounded-lg px-3 py-2 text-xs font-orbitron text-gray-300 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Fonts & Styling -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Gaya Font Teks</label>
+                            <select id="selectFont" onchange="updateVisuals()" class="w-full bg-gray-900 border border-gray-700 focus:border-cyber-neon rounded-lg px-2.5 py-2 text-xs text-white outline-none">
+                                <option value="'UnifrakturMaguntia', serif">Gothic Tribal (Ornate)</option>
+                                <option value="'Orbitron', sans-serif">Cyberpunk / Tech</option>
+                                <option value="'Russo One', sans-serif">Bold Heavy Block</option>
+                                <option value="'Cinzel', serif">Classic Royal Serif</option>
+                                <option value="'Permanent Marker', cursive">Street Graffiti Marker</option>
+                                <option value="'Monoton', cursive">Retro Neon Lines</option>
+                                <option value="'Press Start 2P', monospace">8-Bit Pixel Game</option>
+                                <option value="'Creepster', cursive">Horror / Spike Gothic</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Gaya Gerakan / Animasi Teks</label>
+                            <select id="selectAnimStyle" onchange="updateVisuals()" class="w-full bg-gray-900 border border-gray-700 focus:border-cyber-neon rounded-lg px-2.5 py-2 text-xs text-white outline-none">
+                                <option value="gothic3d">3D Tilted Orbit (Video Style)</option>
+                                <option value="rotate3d">3D Horizontal Ring Rotate</option>
+                                <option value="spinVertical">3D Vertical Flip Spin</option>
+                                <option value="wave">Floating Wave & Bounce</option>
+                                <option value="glitch">Glitch Shake & Pulse</option>
+                                <option value="spiral">Spiral Ring Floating</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Size, Depth & Colors -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Ukuran Font</label>
+                            <input type="number" id="inputFontSize" value="65" min="20" max="150" oninput="updateVisuals()" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-1.5 text-xs text-center text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Tebal 3D</label>
+                            <input type="number" id="inputExtrudeDepth" value="16" min="0" max="40" oninput="updateVisuals()" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-1.5 text-xs text-center text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Warna Teks</label>
+                            <input type="color" id="colorTextPrimary" value="#ff007f" onchange="updateVisuals()" class="w-full h-8 bg-gray-900 border border-gray-700 rounded-lg cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Warna Glow</label>
+                            <input type="color" id="colorTextGlow" value="#00f0ff" onchange="updateVisuals()" class="w-full h-8 bg-gray-900 border border-gray-700 rounded-lg cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extra Elements -->
+                <div class="bg-cyber-card p-4 rounded-xl border border-gray-800/80 shadow-lg flex flex-col gap-3">
+                    <h3 class="text-xs font-orbitron font-bold text-cyber-gold uppercase tracking-widest flex items-center gap-1.5">
+                        <i class="fa-solid fa-shapes"></i> Elemen Tambahan & Tempo
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center gap-2 p-2 rounded-lg bg-gray-900/80 border border-gray-800 cursor-pointer">
+                            <input type="checkbox" id="chkSnake" checked onchange="updateVisuals()" class="accent-cyber-green w-4 h-4 rounded">
+                            <span class="text-xs text-green-400 font-bold"><i class="fa-solid fa-staff-snake mr-1"></i> Ular 3D (Serpent)</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2 rounded-lg bg-gray-900/80 border border-gray-800 cursor-pointer">
+                            <input type="checkbox" id="chkOrnaments" checked onchange="updateVisuals()" class="accent-cyber-accent w-4 h-4 rounded">
+                            <span class="text-xs text-pink-400 font-bold"><i class="fa-solid fa-shield-halved mr-1"></i> Ornamen Tribal</span>
+                        </label>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs text-gray-400 mb-1">
+                            <span>Kecepatan Animasi (BPM)</span>
+                            <span id="valBpm" class="text-cyber-neon font-bold">128 BPM</span>
+                        </div>
+                        <input type="range" id="sliderBpm" min="60" max="200" value="128" oninput="updateVisuals()" class="w-full">
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TAB 2: VIDEO BACKGROUND -->
+            <div id="panel-video" class="hidden flex-col gap-4">
+                <div class="bg-cyber-card p-4 rounded-xl border border-gray-800/80 shadow-lg flex flex-col gap-3">
+                    <h3 class="text-xs font-orbitron font-bold text-cyber-green uppercase tracking-widest flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-video"></i> Gunakan Video Background Kustom
+                    </h3>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">1. Upload Video dari HP / PC (.mp4, .webm)</label>
+                            <input type="file" id="uploadVideoFile" accept="video/mp4,video/webm" onchange="handleVideoUpload(event)" class="w-full bg-gray-900 border border-gray-700 text-xs text-gray-300 rounded-lg p-2 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:bg-cyber-green/20 file:text-cyber-green file:font-bold">
+                        </div>
+
+                        <div class="text-center text-xs text-gray-500 font-bold">- ATAU -</div>
+
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">2. Punya URL Video Direct Link (.mp4)</label>
+                            <div class="flex gap-2">
+                                <input type="url" id="inputVideoUrl" placeholder="https://example.com/video.mp4" class="flex-1 bg-gray-900 border border-gray-700 text-xs rounded-lg px-3 py-2 text-white outline-none">
+                                <button onclick="loadVideoFromUrl()" class="px-3 py-2 bg-cyber-green text-black font-bold text-xs rounded-lg">Load</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 border-t border-gray-800">
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Transparansi Video</label>
+                            <input type="range" id="sliderVidOpacity" min="0" max="1" step="0.05" value="0.7" oninput="updateVisuals()" class="w-full">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Kecerahan (Brightness)</label>
+                            <input type="range" id="sliderVidBrightness" min="0.2" max="2" step="0.1" value="1" oninput="updateVisuals()" class="w-full">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Efek Blur Video</label>
+                            <input type="range" id="sliderVidBlur" min="0" max="10" step="0.5" value="0" oninput="updateVisuals()" class="w-full">
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-cyber-dark/80 rounded-lg border border-gray-800/80 text-xs text-gray-300 space-y-1.5">
+                        <span class="font-orbitron font-bold text-cyber-gold block"><i class="fa-solid fa-lightbulb"></i> Rekomendasi Video untuk Roblox:</span>
+                        <ul class="list-disc list-inside text-gray-400 space-y-1 text-[11px]">
+                            <li>Gunakan video **durasi 5 - 15 detik** yang bersifat *seamless loop*.</li>
+                            <li>Resolusi rekomendasi: **720p / HD (1280x720)** agar ringan di HP.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: SCRIPT LUAU -->
+            <div id="panel-script" class="hidden flex-col gap-4">
+                <div class="bg-cyber-card p-4 rounded-xl border border-gray-800/80 shadow-lg flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
+                            <h3 class="text-xs font-orbitron font-bold text-gray-300 uppercase tracking-widest">
+                                Script Luau (Roblox Studio / Studio Lite)
+                            </h3>
+                        </div>
+                        <button onclick="copyLuauScript()" class="text-xs bg-cyber-neon/20 hover:bg-cyber-neon/30 text-cyber-neon border border-cyber-neon/50 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 font-bold">
+                            <i class="fa-solid fa-copy"></i> Salin Kode Script
+                        </button>
+                    </div>
+
+                    <div class="relative">
+                        <pre class="bg-black/90 border border-gray-800 rounded-lg p-4 text-xs font-mono text-green-400 overflow-x-auto h-[380px] leading-relaxed" id="codeDisplay">
+-- Generating Luau Script...
+                        </pre>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- RIGHT PANEL: Live Stage Canvas Preview (7 Cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-4">
+            
+            <div class="bg-cyber-card p-3 rounded-xl border border-gray-800/80 shadow-2xl flex flex-col gap-3">
+                <div class="flex items-center justify-between px-2 py-1">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                        <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                        <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                        <span class="text-xs font-orbitron text-gray-400 ml-2">LIVE CANVAS PREVIEW (16:9)</span>
+                    </div>
+                    <span id="fpsCounter" class="text-xs font-mono text-cyber-neon">60 FPS</span>
+                </div>
+
+                <div id="canvasWrapper" class="relative w-full aspect-video bg-black rounded-lg overflow-hidden neon-border">
+                    <canvas id="stageCanvas" class="w-full h-full block min-h-[240px]"></canvas>
+                    <div class="scanlines absolute inset-0 opacity-30"></div>
+                </div>
+
+                <button onclick="resizeCanvas()" class="w-full py-2 bg-cyber-dark hover:bg-gray-800 text-cyber-neon border border-cyber-neon/40 rounded-lg text-xs font-orbitron font-bold transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrows-rotate"></i> Refresh Visual Canvas
+                </button>
+            </div>
+
+            <!-- ROBLOX STUDIO GUIDE -->
+            <div id="roblox-guide" class="bg-cyber-card p-5 rounded-xl border border-gray-800/80 shadow-lg space-y-3">
+                <h3 class="font-orbitron text-sm font-bold text-cyber-neon flex items-center gap-2">
+                    <i class="fa-solid fa-mobile-screen"></i> Cara Pasang di Studio Lite HP / PC:
+                </h3>
+                
+                <ol class="list-decimal list-inside text-xs text-gray-300 space-y-2 leading-relaxed">
+                    <li>Buat objek **Part** panggung di Roblox Studio.</li>
+                    <li>Tambahkan **SurfaceGui** di dalam Part tersebut.</li>
+                    <li>Di dalam SurfaceGui, buat **Frame** dan ganti namanya menjadi <code class="bg-gray-900 px-1 text-cyber-neon">ScreenFrame</code>. Set Size ke `{1, 0}, {1, 0}`.</li>
+                    <li>Klik tombol **Salin Kode Script** di tab Script Luau, lalu tempel (*paste*) ke dalam **LocalScript** di SurfaceGui. Layar siap digunakan!</li>
+                </ol>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Hidden Video Element -->
+    <video id="bgVideo" loop muted playsinline style="display:none;"></video>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-cyber-neon text-black font-bold text-xs px-4 py-3 rounded-lg shadow-2xl transition-all duration-300 transform translate-y-20 opacity-0 flex items-center gap-2 z-50">
+        <i class="fa-solid fa-circle-check"></i> <span id="toastMsg">Notifikasi</span>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const state = {
+            mainText: 'Boy Studio',
+            subText: 'OFFICIAL RAVE CLUB',
+            fontFamily: "'UnifrakturMaguntia', serif",
+            animStyle: 'gothic3d',
+            fontSize: 65,
+            extrudeDepth: 16,
+            textColorPrimary: '#ff007f',
+            textColorGlow: '#00f0ff',
+            bpm: 128,
+            enableSnake: true,
+            enableOrnaments: true,
+            hasCustomVideo: false,
+            vidOpacity: 0.7,
+            vidBrightness: 1,
+            vidBlur: 0
+        };
+
+        const canvas = document.getElementById('stageCanvas');
+        const ctx = canvas.getContext('2d');
+        const bgVideo = document.getElementById('bgVideo');
+        let frameCount = 0;
+        let lastFpsUpdate = performance.now();
+
+        function handleVideoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                bgVideo.src = url;
+                bgVideo.play();
+                state.hasCustomVideo = true;
+                showToast("Video Berhasil Dimuat!");
+            }
+        }
+
+        function loadVideoFromUrl() {
+            const url = document.getElementById('inputVideoUrl').value;
+            if (url) {
+                bgVideo.crossOrigin = "anonymous";
+                bgVideo.src = url;
+                bgVideo.play().then(() => {
+                    state.hasCustomVideo = true;
+                    showToast("Video URL Berhasil Dimuat!");
+                }).catch(err => {
+                    showToast("Gagal memuat URL Video!");
+                });
+            }
+        }
+
+        function updateVisuals() {
+            state.mainText = document.getElementById('inputMainText').value || 'Boy Studio';
+            state.subText = document.getElementById('inputSubText').value || '';
+            state.fontFamily = document.getElementById('selectFont').value;
+            state.animStyle = document.getElementById('selectAnimStyle').value;
+            state.fontSize = parseInt(document.getElementById('inputFontSize').value) || 65;
+            state.extrudeDepth = parseInt(document.getElementById('inputExtrudeDepth').value) || 16;
+            state.textColorPrimary = document.getElementById('colorTextPrimary').value;
+            state.textColorGlow = document.getElementById('colorTextGlow').value;
+            state.bpm = parseInt(document.getElementById('sliderBpm').value);
+
+            state.enableSnake = document.getElementById('chkSnake').checked;
+            state.enableOrnaments = document.getElementById('chkOrnaments').checked;
+
+            state.vidOpacity = parseFloat(document.getElementById('sliderVidOpacity').value);
+            state.vidBrightness = parseFloat(document.getElementById('sliderVidBrightness').value);
+            state.vidBlur = parseFloat(document.getElementById('sliderVidBlur').value);
+
+            document.getElementById('valBpm').innerText = `${state.bpm} BPM`;
+            generateLuauScript();
+        }
+
+        function renderStage(timestamp) {
+            frameCount++;
+            if (timestamp - lastFpsUpdate >= 1000) {
+                document.getElementById('fpsCounter').innerText = `${frameCount} FPS`;
+                frameCount = 0;
+                lastFpsUpdate = timestamp;
+            }
+
+            const w = canvas.width;
+            const h = canvas.height;
+            const time = timestamp * 0.001;
+            const beatFreq = (state.bpm / 60);
+            const beatPulse = Math.pow(Math.sin(time * beatFreq * Math.PI * 2), 4);
+
+            ctx.clearRect(0, 0, w, h);
+
+            if (state.hasCustomVideo && bgVideo.readyState >= 2) {
+                ctx.save();
+                ctx.globalAlpha = state.vidOpacity;
+                ctx.filter = `brightness(${state.vidBrightness}) blur(${state.vidBlur}px)`;
+                ctx.drawImage(bgVideo, 0, 0, w, h);
+                ctx.restore();
+            } else {
+                const bgGrad = ctx.createRadialGradient(w/2, h/2, 50, w/2, h/2, Math.max(w, h));
+                bgGrad.addColorStop(0, '#12051b');
+                bgGrad.addColorStop(1, '#05050a');
+                ctx.fillStyle = bgGrad;
+                ctx.fillRect(0, 0, w, h);
+            }
+
+            drawFloatingParticles(ctx, w, h, time);
+
+            if (state.enableOrnaments) {
+                drawGothicTribalOrnaments(ctx, w, h, time, beatPulse);
+            }
+
+            draw3DAnimatedText(ctx, w, h, time, beatPulse);
+
+            if (state.enableSnake) {
+                drawGreenSnake3D(ctx, w, h, time);
+            }
+
+            requestAnimationFrame(renderStage);
+        }
+
+        function drawFloatingParticles(ctx, w, h, time) {
+            const colors = [state.textColorPrimary, state.textColorGlow, '#00ff66', '#ffb700'];
+            for (let i = 0; i < 10; i++) {
+                const x = (Math.sin(time * 0.4 + i * 1.7) * 0.45 + 0.5) * w;
+                const y = (Math.cos(time * 0.3 + i * 1.3) * 0.45 + 0.5) * h;
+                const size = 2 + Math.sin(time * 2 + i) * 1.5;
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawGothicTribalOrnaments(ctx, w, h, time, beatPulse) {
+            ctx.save();
+            const cx = w / 2;
+            const cy = h / 2;
+            
+            const tiltX = Math.sin(time * 1.5) * 0.12;
+            const tiltY = Math.cos(time * 1.2) * 0.08;
+
+            ctx.translate(cx, cy);
+            ctx.transform(1, tiltY, tiltX, 1, 0, 0);
+
+            ctx.strokeStyle = state.textColorPrimary;
+            ctx.lineWidth = 3;
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+
+            ctx.beginPath();
+            ctx.moveTo(-w * 0.28, 0);
+            ctx.quadraticCurveTo(-w * 0.12, -h * 0.28, 0, -h * 0.12);
+            ctx.quadraticCurveTo(w * 0.12, -h * 0.28, w * 0.28, 0);
+            ctx.quadraticCurveTo(w * 0.12, h * 0.28, 0, h * 0.12);
+            ctx.quadraticCurveTo(-w * 0.12, h * 0.28, -w * 0.28, 0);
+            ctx.stroke();
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function draw3DAnimatedText(ctx, w, h, time, beatPulse) {
+            ctx.save();
+            const cx = w / 2;
+            const cy = h / 2;
+
+            let tiltX = 0, tiltY = 0, roll = 0, scaleX = 1, scaleY = 1;
+
+            switch (state.animStyle) {
+                case 'gothic3d':
+                    tiltX = Math.sin(time * 1.8) * 0.18;
+                    roll = Math.cos(time * 1.2) * 0.08;
+                    break;
+                case 'rotate3d':
+                    scaleX = Math.cos(time * 2.2);
+                    break;
+                case 'spinVertical':
+                    scaleY = Math.sin(time * 2.5);
+                    break;
+                case 'wave':
+                    cy += Math.sin(time * 3) * 15;
+                    roll = Math.sin(time * 2) * 0.05;
+                    break;
+                case 'glitch':
+                    if (Math.random() > 0.85) {
+                        cx += (Math.random() - 0.5) * 12;
+                        cy += (Math.random() - 0.5) * 12;
+                    }
+                    break;
+                case 'spiral':
+                    cx += Math.cos(time * 2) * 20;
+                    cy += Math.sin(time * 2) * 15;
+                    roll = Math.sin(time * 1.5) * 0.1;
+                    break;
+            }
+
+            const pulseScale = 1 + beatPulse * 0.05;
+
+            ctx.translate(cx, cy);
+            ctx.rotate(roll);
+            ctx.transform(scaleX, tiltX, tiltY, scaleY, 0, 0);
+            ctx.scale(pulseScale, pulseScale);
+
+            const scaledFontSize = (state.fontSize / 500) * Math.min(w, h);
+            ctx.font = `900 ${scaledFontSize}px ${state.fontFamily}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const depth = state.extrudeDepth;
+
+            for (let i = depth; i > 0; i--) {
+                ctx.fillStyle = i === 1 ? '#000000' : (i % 2 === 0 ? '#110008' : '#330018');
+                ctx.fillText(state.mainText, i * 0.8, i * 0.9);
+            }
+
+            ctx.shadowColor = state.textColorGlow;
+            ctx.shadowBlur = 15;
+            ctx.fillStyle = state.textColorPrimary;
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.fillText(state.mainText, 0, 0);
+            ctx.strokeText(state.mainText, 0, 0);
+
+            if (state.subText) {
+                ctx.shadowBlur = 0;
+                ctx.font = `700 ${scaledFontSize * 0.28}px 'Orbitron', sans-serif`;
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(state.subText, 0, scaledFontSize * 0.75);
+            }
+
+            ctx.restore();
+        }
+
+        function drawGreenSnake3D(ctx, w, h, time) {
+            ctx.save();
+            const cx = w / 2;
+            const cy = h / 2;
+
+            const radiusX = w * 0.32;
+            const radiusY = h * 0.22;
+            const speed = time * (state.bpm / 60) * 1.2;
+
+            ctx.lineWidth = Math.min(w, h) * 0.04;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#00ff66';
+            ctx.shadowColor = '#00ff66';
+            ctx.shadowBlur = 12;
+
+            ctx.beginPath();
+            const segments = 35;
+            for (let i = 0; i <= segments; i++) {
+                const angle = speed + (i / segments) * Math.PI * 2;
+                const sx = cx + Math.cos(angle) * radiusX;
+                const sy = cy + Math.sin(angle * 2) * radiusY;
+
+                if (i === 0) ctx.moveTo(sx, sy);
+                else ctx.lineTo(sx, sy);
+            }
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function generateLuauScript() {
+            const rgbPrimary = hexToColor3RGB(state.textColorPrimary);
+            const rgbGlow = hexToColor3RGB(state.textColorGlow);
+
+            const scriptContent = `--[[ 
+    ROBLOX STUDIO LITE VISUAL SCREEN SCRIPT
+    Generated for: ${state.mainText}
+--]]
+
+local RunService = game:GetService("RunService")
+local surfaceGui = script.Parent
+local screenFrame = surfaceGui:WaitForChild("ScreenFrame", 5) or surfaceGui
+
+local MAIN_TEXT_VAL = "${state.mainText}"
+local SUB_TEXT_VAL = "${state.subText}"
+local COLOR_PRIMARY = ${rgbPrimary}
+local COLOR_GLOW = ${rgbGlow}
+local BPM = ${state.bpm}
+
+local titleLabel = screenFrame:FindFirstChild("MainTitle")
+if not titleLabel then
+    titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "MainTitle"
+    titleLabel.Size = UDim2.new(0.85, 0, 0.4, 0)
+    titleLabel.Position = UDim2.new(0.5, 0, 0.45, 0)
+    titleLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Font = Enum.Font.GothamBlack
+    titleLabel.TextColor3 = COLOR_PRIMARY
+    titleLabel.TextScaled = true
+    titleLabel.Parent = screenFrame
+end
+
+titleLabel.Text = MAIN_TEXT_VAL
+
+local angle = 0
+RunService.RenderStepped:Connect(function(dt)
+    angle = angle + dt * (BPM / 60) * 2.5
+    titleLabel.Rotation = math.sin(angle) * 12
+    local scaleY = 0.85 + math.cos(angle * 1.5) * 0.15
+    titleLabel.Size = UDim2.new(0.85, 0, 0.4 * scaleY, 0)
+end)
+`;
+
+            document.getElementById('codeDisplay').innerText = scriptContent;
+        }
+
+        function hexToColor3RGB(hex) {
+            const r = parseInt(hex.substring(1, 3), 16) / 255;
+            const g = parseInt(hex.substring(3, 5), 16) / 255;
+            const b = parseInt(hex.substring(5, 7), 16) / 255;
+            return `Color3.new(${r.toFixed(2)}, ${g.toFixed(2)}, ${b.toFixed(2)})`;
+        }
+
+        function copyLuauScript() {
+            const codeText = document.getElementById('codeDisplay').innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = codeText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            showToast("Script Luau Berhasil Di-copy!");
+        }
+
+        function switchTab(tab) {
+            document.getElementById('panel-design').style.display = tab === 'design' ? 'flex' : 'none';
+            document.getElementById('panel-video').style.display = tab === 'video' ? 'flex' : 'none';
+            document.getElementById('panel-script').style.display = tab === 'script' ? 'flex' : 'none';
+
+            document.getElementById('tab-design').classList.toggle('active', tab === 'design');
+            document.getElementById('tab-video').classList.toggle('active', tab === 'video');
+            document.getElementById('tab-script').classList.toggle('active', tab === 'script');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            if (rect.width > 0 && rect.height > 0) {
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.scale(dpr, dpr);
+            }
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        window.onload = function() {
+            setTimeout(() => {
+                resizeCanvas();
+                updateVisuals();
+                requestAnimationFrame(renderStage);
+            }, 100);
+        };
+    </script>
+</body>
+</html>
